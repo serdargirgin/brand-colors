@@ -1,24 +1,61 @@
-import logo from './logo.svg';
-import './App.css';
+import { useState,useEffect } from "react";
+import Content from "components/Content";
+import Sidebar from "components/Sidebar";
+import BrandsData from './brands.json'
+import MainContext from "components/MainContext";
+import Copied from "components/Copied";
+
 
 function App() {
+
+  
+  const brandsArray = [];
+  
+  Object.keys(BrandsData).map(key => {
+    brandsArray.push(BrandsData[key])
+  })
+  
+  const [copied, setCopied] = useState(false);
+  const [brands, setBrands] = useState(brandsArray);
+  const [selectedBrands, setSelectedBrands] = useState([]);
+  const [search, setSearch] = useState("");
+
+
+  useEffect(() => {
+    if(copied){
+      const timeout =  setTimeout(() => {
+            setCopied(false)
+        }
+        , 1500)
+        return () => clearTimeout(timeout)
+    }
+}, [copied])
+
+  useEffect(() => {
+    setBrands(brandsArray.filter(brand=> brand.title.toLowerCase().includes(search.toLowerCase())))
+  }, [search])
+
+
+
+
+  const data = {
+    brands,
+    selectedBrands,
+    setSelectedBrands,
+    setCopied,
+    search,
+    setSearch
+  }
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <>
+      <MainContext.Provider value={data}>
+        <Sidebar />
+        <Content />
+        {copied && <Copied color={copied} />}
+
+      </MainContext.Provider>
+    </>
   );
 }
 
